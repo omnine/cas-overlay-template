@@ -82,6 +82,7 @@ dependencies {
     }
     // CAS dependencies/modules may be listed here statically...
     implementation "org.apereo.cas:cas-server-webapp-init:${casServerVersion}"
+    implementation "org.apereo.cas:cas-server-support-pac4j-webflow:${casServerVersion}"
 }
 
 tasks.findByName("jibDockerBuild")

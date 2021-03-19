@@ -146,3 +146,64 @@ chmod +x *.sh
 ./docker-build.sh
 ./docker-run.sh
 ```
+
+# DualShield Authentication Delegation
+
+**CAS** can be configured to delegate authentication to an external identity provider, e.g. **DualShield**. We tested it under Ubuntu 18.04.
+
+### JDK 11
+Install it by `sudo apt-get install openjdk-11-jdk`
+
+### Tomcat 9
+See the following links.  
+[How To Install Apache Tomcat 9 on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/install-tomcat-9-ubuntu-1804)  
+[How to Install Tomcat 9 on Ubuntu 18.04](https://linuxize.com/post/how-to-install-tomcat-9-on-ubuntu-18-04/)  
+For TLS, modify `server.xml` accordingly.
+```aidl
+<Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" maxThreads="150" scheme="https" secure="true"
+    keystoreFile="the-path-to/certificate.pfx" keystorePass="password"
+    clientAuth="false" keystoreType="PKCS12" sslEnabledProtocols="TLSv1,TLSv1.1,TLSv1.2"/>
+```
+
+### CAS Overlay
+Customize it by adding the following line in `build.gradle`  
+    `implementation "org.apereo.cas:cas-server-support-pac4j-webflow:${casServerVersion}"`  
+Then build it.  
+    `build: ./gradlew clean build`
+
+The output `cas.war` (under the subfolder `build/libs` ) can be deployed to a servlet container like Apache Tomcat.  
+By the way, you can also run it in place with the embedded container via the following command:
+
+`java -jar /path/to/cas.war`
+
+### Configuration
+Create a folder `/etc/cas/config`, copy the sample file `cas.properties` under the subfolder `etc/cas/config/` into it.
+You can modify the content.  
+Get DualShield IDP metadata, name it as `idp-metadata.xml`, then save it into `/etc/cas/config`.
+
+### Deploy cas.war
+Copy it to tomcat webapps folder, e.g. `/opt/tomcat/latest/webapps`, restart tomcat service.   
+The SP metadata `sp-metadata.xml` will be generated under the folder `/etc/cas/config`
+```aidl
+root@nano190018:/etc/cas/config# ls -ltr
+total 32
+-rw-r--r-- 1 tomcat tomcat 2071 Mar 18 17:33 idp-metadata.xml
+-rw-r----- 1 tomcat tomcat 2475 Mar 19 11:45 samlKeystore.jks
+-rw-r----- 1 tomcat tomcat 1019 Mar 19 11:45 saml-signing-cert-DualShield.pem
+-rw-r----- 1 tomcat tomcat 1746 Mar 19 11:45 saml-signing-cert-DualShield.key
+-rw-r----- 1 tomcat tomcat  679 Mar 19 11:45 saml-signing-cert-DualShield.crt
+-rw-r----- 1 tomcat tomcat 6088 Mar 19 11:45 sp-metadata.xml
+-rw-rw-r-- 1 tomcat tomcat 1001 Mar 19 13:17 cas.properties
+```
+You can also obtain it from `https://cas.deepnetsecurity.com:8443/cas/sp/metadata`, which you should register it in DualShield.
+
+### Test it
+Access it by, `https://cas.deepnetsecurity.com:8443/cas`
+
+### References
+
+[How CAS Works](https://calnetweb.berkeley.edu/calnet-technologists/cas/how-cas-works)  
+[CAS web flow](https://apereo.github.io/cas/development/images/cas_flow_diagram.png)  
+[SafeNet Trusted Access for Apereo CAS](https://resources.safenetid.com/help/Apereo%20CAS/Apereo_CAS_Help/Index.htm)  
+[Apereo CAS - Delegated Authentication to SAML2 Identity Providers](https://apereo.github.io/2019/02/25/cas61-delegate-authn-saml2-idp/)  
+[CAS 5 SAML2 Delegated AuthN Tutorial](https://apereo.github.io/2017/03/22/cas51-delauthn-tutorial/)
