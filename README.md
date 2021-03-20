@@ -149,7 +149,7 @@ chmod +x *.sh
 
 # DualShield Authentication Delegation
 
-**CAS** can be configured to delegate authentication to an external identity provider, e.g. **DualShield**. We tested it under Ubuntu 18.04.
+**CAS** can be configured to delegate authentication to an external identity provider, e.g. **DualShield**. We tested it(6.3) under Ubuntu 18.04.
 
 ### JDK 11
 Install it by `sudo apt-get install openjdk-11-jdk`
@@ -167,9 +167,12 @@ For TLS, modify `server.xml` accordingly.
 
 ### CAS Overlay
 Customize it by adding the following line in `build.gradle`  
+
     `implementation "org.apereo.cas:cas-server-support-pac4j-webflow:${casServerVersion}"`  
+
 Then build it.  
-    `build: ./gradlew clean build`
+
+    `./gradlew clean build`
 
 The output `cas.war` (under the subfolder `build/libs` ) can be deployed to a servlet container like Apache Tomcat.  
 By the way, you can also run it in place with the embedded container via the following command:
@@ -179,10 +182,10 @@ By the way, you can also run it in place with the embedded container via the fol
 ### Configuration
 Create a folder `/etc/cas/config`, copy the sample file `cas.properties` under the subfolder `etc/cas/config/` into it.
 You can modify the content.  
-Get DualShield IDP metadata, name it as `idp-metadata.xml`, then save it into `/etc/cas/config`.
+Get DualShield IDP metadata, name it as `idp-metadata.xml`, then save it into `/etc/cas/config/`.
 
 ### Deploy cas.war
-Copy it to tomcat webapps folder, e.g. `/opt/tomcat/latest/webapps`, restart tomcat service.   
+Copy it to Tomcat webapps folder, e.g. `/opt/tomcat/latest/webapps`, restart Tomcat service.   
 The SP metadata `sp-metadata.xml` will be generated under the folder `/etc/cas/config`
 ```aidl
 root@nano190018:/etc/cas/config# ls -ltr
@@ -198,7 +201,7 @@ total 32
 You can also obtain it from `https://cas.deepnetsecurity.com:8443/cas/sp/metadata`, which you should register it in DualShield.
 
 ### Test it
-Access it by, `https://cas.deepnetsecurity.com:8443/cas`
+Access it in browser by, `https://cas.deepnetsecurity.com:8443/cas`
 
 ### References
 
